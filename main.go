@@ -2,6 +2,7 @@ package main
 
 import (
 	"vaccine-reminder/handler"
+	"vaccine-reminder/repository"
 	"vaccine-reminder/router"
 	"vaccine-reminder/service"
 
@@ -11,7 +12,9 @@ import (
 func main() {
 	r := gin.Default()
 
-	vaccineService := service.NewVaccineService()
+	sheetRepository := repository.NewSheetRepository()
+
+	vaccineService := service.NewVaccineService(sheetRepository)
 	webhookHandler := handler.NewWebhookHandler(vaccineService)
 	router := router.NewWebhookRouter(r, webhookHandler)
 	router.InitRouter()

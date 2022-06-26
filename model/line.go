@@ -11,6 +11,7 @@ type WebhookEvent struct {
 	Mode            string          `json:"mode"`
 	ReplyToken      string          `json:"replyToken"`
 	Type            string          `json:"type"`
+	Source          Source          `json:"source"`
 }
 
 type DeliveryContext struct {
