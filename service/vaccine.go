@@ -59,7 +59,7 @@ func (s vaccineService) CronJob() {
 				/// Update sheet
 				s.sheetRepository.AddUserNotification(log.UserId, log.PersonName, fmt.Sprint(file.Id))
 				/// Push Message
-				err := s.pushMessage(log.UserId, file.Url)
+				err := s.pushImageMessage(log.UserId, file.Url)
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -108,9 +108,10 @@ func (s vaccineService) Webhook(req model.WebhookPayload) {
 		}
 		fmt.Println("insert user success")
 	}
+	s.pushTextMessage(req.Events[0].Source.UserID, "บันทึกข้อมูลสำเร็จ")
 }
 
-func (s vaccineService) pushMessage(userId, imgUrl string) error {
+func (s vaccineService) pushImageMessage(userId, imgUrl string) error {
 	client := &http.Client{}
 	bot, err := linebot.New("1a13854d8d764f63bb8a35309c240a5a", "juxBi5xsAE9T9+CjJf0PJlqUjyCWStF1GP9Zt/gJ+49PhBPrQKIVQvQWRALPZ6dOINzgMoIjcx8+GVI0oP+TY4kaBg7Kh9VjdQmkPcYqnhApbMMZ3QqCP+R1Hi5va+nFqHQ8PxS58YjQ/EvQaJcurAdB04t89/1O/w1cDnyilFU=", linebot.WithHTTPClient(client))
 	if err != nil {
@@ -118,5 +119,16 @@ func (s vaccineService) pushMessage(userId, imgUrl string) error {
 	}
 	img := linebot.NewImageMessage(imgUrl, imgUrl)
 	_, err = bot.PushMessage(userId, img).Do()
+	return err
+}
+
+func (s vaccineService) pushTextMessage(userId, text string) error {
+	client := &http.Client{}
+	bot, err := linebot.New("1a13854d8d764f63bb8a35309c240a5a", "juxBi5xsAE9T9+CjJf0PJlqUjyCWStF1GP9Zt/gJ+49PhBPrQKIVQvQWRALPZ6dOINzgMoIjcx8+GVI0oP+TY4kaBg7Kh9VjdQmkPcYqnhApbMMZ3QqCP+R1Hi5va+nFqHQ8PxS58YjQ/EvQaJcurAdB04t89/1O/w1cDnyilFU=", linebot.WithHTTPClient(client))
+	if err != nil {
+		return err
+	}
+	txt := linebot.NewTextMessage(text)
+	_, err = bot.PushMessage(userId, txt).Do()
 	return err
 }

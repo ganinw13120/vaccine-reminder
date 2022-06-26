@@ -11,7 +11,7 @@ import (
 	"vaccine-reminder/model"
 )
 
-var baseUrl = "https://script.google.com/macros/s/AKfycbyUMwkjI7qn1w8DTGTU2Z345tD6G_EtKeCDoDOur5mndbIy27bCyayJpmOvDk7xZS_J/exec"
+var baseUrl = "https://script.google.com/macros/s/AKfycbzMY3AEAIS4iM4xKxEi4j0w1f2pr-ZJZZwTOy-i3RSOfkzW33VMFK4Niv-TJAEt4sY_/exec"
 var method string = "GET"
 
 type sheetRepository struct {
