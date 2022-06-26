@@ -13,6 +13,7 @@ type webhookHandler struct {
 
 type WebhookHandler interface {
 	Webhook(c *gin.Context)
+	CronJob(c *gin.Context)
 }
 
 func NewWebhookHandler(
@@ -27,4 +28,8 @@ func (w webhookHandler) Webhook(c *gin.Context) {
 	var req model.WebhookPayload
 	c.BindJSON(&req)
 	w.vaccineService.Webhook(req)
+}
+
+func (w webhookHandler) CronJob(c *gin.Context) {
+	w.vaccineService.CronJob()
 }

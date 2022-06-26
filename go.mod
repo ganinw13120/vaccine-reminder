@@ -11,6 +11,7 @@ require (
 	github.com/golang/lint v0.0.0-20180702182130-06c8688daad7 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/line/line-bot-sdk-go/v7 v7.16.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/openzipkin/zipkin-go v0.1.1 // indirect
@@ -18,6 +19,7 @@ require (
 	github.com/prometheus/client_golang v0.8.0 // indirect
 	github.com/prometheus/common v0.0.0-20180801064454-c7de2306084e // indirect
 	github.com/prometheus/procfs v0.0.0-20180725123919-05ee40e3a273 // indirect
+	github.com/robfig/cron/v3 v3.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
 	golang.org/x/oauth2 v0.0.0-20220622183110-fd043fe589d2 // indirect

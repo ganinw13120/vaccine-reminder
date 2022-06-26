@@ -23,7 +23,7 @@ type UserLog struct {
 }
 
 type Files struct {
-	Id    string `json:"id"`
+	Id    int    `json:"id"`
 	Url   string `json:"url"`
-	Month string `json:"month"`
+	Month int    `json:"month"`
 }

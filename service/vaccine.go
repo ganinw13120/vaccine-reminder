@@ -2,10 +2,15 @@ package service
 
 import (
 	"fmt"
+	"net/http"
 	"regexp"
 	"strings"
+	"time"
 	"vaccine-reminder/model"
 	"vaccine-reminder/repository"
+	"vaccine-reminder/util"
+
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 type vaccineService struct {
@@ -14,6 +19,7 @@ type vaccineService struct {
 
 type VaccineService interface {
 	Webhook(req model.WebhookPayload)
+	CronJob()
 }
 
 func NewVaccineService(
@@ -22,6 +28,45 @@ func NewVaccineService(
 	return &vaccineService{
 		sheetRepository: sheetRepository,
 	}
+}
+
+func (s vaccineService) CronJob() {
+	logs, err := s.sheetRepository.GetAllUserLog()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	files, err := s.sheetRepository.GetAllFiles()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, log := range logs {
+		year, month, _, _, _, _ := util.Diff(log.Birth, time.Now().AddDate(543, 0, 0))
+		monthDiff := (year * 12) + month
+		for _, file := range files {
+			isSent := false
+			for _, v := range log.Notification {
+				if fmt.Sprint(file.Id) == v {
+					isSent = true
+				}
+			}
+			if isSent {
+				continue
+			}
+			if file.Month == monthDiff {
+				fmt.Println("Processing notification")
+				/// Update sheet
+				s.sheetRepository.AddUserNotification(log.UserId, log.PersonName, fmt.Sprint(file.Id))
+				/// Push Message
+				err := s.pushMessage(log.UserId, file.Url)
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
+		}
+	}
+	fmt.Println("Scheule complete")
 }
 
 func (s vaccineService) Webhook(req model.WebhookPayload) {
@@ -63,4 +108,15 @@ func (s vaccineService) Webhook(req model.WebhookPayload) {
 		}
 		fmt.Println("insert user success")
 	}
+}
+
+func (s vaccineService) pushMessage(userId, imgUrl string) error {
+	client := &http.Client{}
+	bot, err := linebot.New("1a13854d8d764f63bb8a35309c240a5a", "juxBi5xsAE9T9+CjJf0PJlqUjyCWStF1GP9Zt/gJ+49PhBPrQKIVQvQWRALPZ6dOINzgMoIjcx8+GVI0oP+TY4kaBg7Kh9VjdQmkPcYqnhApbMMZ3QqCP+R1Hi5va+nFqHQ8PxS58YjQ/EvQaJcurAdB04t89/1O/w1cDnyilFU=", linebot.WithHTTPClient(client))
+	if err != nil {
+		return err
+	}
+	img := linebot.NewImageMessage(imgUrl, imgUrl)
+	_, err = bot.PushMessage(userId, img).Do()
+	return err
 }

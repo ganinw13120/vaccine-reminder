@@ -11,7 +11,7 @@ import (
 	"vaccine-reminder/model"
 )
 
-var baseUrl = "https://script.google.com/macros/s/AKfycbyI1SFZA9benmJ7vTTcmErFgccmC_ycWkDNSiPiXROco-B7XlllIDIAF74QTA-Vv4fg/exec"
+var baseUrl = "https://script.google.com/macros/s/AKfycbyUMwkjI7qn1w8DTGTU2Z345tD6G_EtKeCDoDOur5mndbIy27bCyayJpmOvDk7xZS_J/exec"
 var method string = "GET"
 
 type sheetRepository struct {
@@ -22,6 +22,7 @@ type SheetRepository interface {
 	GetAllUserLog() ([]*model.UserLog, error)
 	UpdateUser(userId, personName, birth string) error
 	InsertUser(userId, personName, birth string) error
+	AddUserNotification(userId, personName, notification string) error
 }
 
 func NewSheetRepository() *sheetRepository {
@@ -30,6 +31,7 @@ func NewSheetRepository() *sheetRepository {
 
 func generateUrl(action, queryParam string) string {
 	urls := fmt.Sprintf("%s?action=%s%s", baseUrl, action, queryParam)
+	fmt.Println(urls)
 	return urls
 }
 
@@ -99,6 +101,20 @@ func (r sheetRepository) GetAllFiles() ([]*model.Files, error) {
 func (r sheetRepository) UpdateUser(userId, personName, birth string) error {
 	client := &http.Client{}
 	req, err := http.NewRequest(method, generateUrl("updateUser", fmt.Sprintf("&userId=%s&personName=%s&birth=%s", url.QueryEscape(userId), url.QueryEscape(personName), url.QueryEscape(birth))), nil)
+	if err != nil {
+		return err
+	}
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	return nil
+}
+
+func (r sheetRepository) AddUserNotification(userId, personName, notification string) error {
+	client := &http.Client{}
+	req, err := http.NewRequest(method, generateUrl("addNotification", fmt.Sprintf("&userId=%s&personName=%s&notifications=%s", url.QueryEscape(userId), url.QueryEscape(personName), url.QueryEscape(notification))), nil)
 	if err != nil {
 		return err
 	}
