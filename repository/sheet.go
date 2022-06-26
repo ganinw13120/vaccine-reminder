@@ -100,7 +100,7 @@ func (r sheetRepository) GetAllFiles() ([]*model.Files, error) {
 
 func (r sheetRepository) UpdateUser(userId, personName, birth string) error {
 	client := &http.Client{}
-	req, err := http.NewRequest(method, generateUrl("updateUser", fmt.Sprintf("&userId=%s&personName=%s&birth=%s", url.QueryEscape(userId), url.QueryEscape(personName), url.QueryEscape(birth))), nil)
+	req, err := http.NewRequest(method, generateUrl("updateUser", fmt.Sprintf("&userId=%s&personName=%s&birth='%s", url.QueryEscape(userId), url.QueryEscape(personName), url.QueryEscape(birth))), nil)
 	if err != nil {
 		return err
 	}
