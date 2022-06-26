@@ -25,7 +25,7 @@ func NewWebhookRouter(
 func (r webhookRouter) InitRouter() {
 
 	r.app.POST("/webhook", r.webhookHandler.Webhook)
-	r.app.POST("/cron", r.webhookHandler.CronJob)
+	r.app.GET("/cron", r.webhookHandler.CronJob)
 
 	r.app.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
