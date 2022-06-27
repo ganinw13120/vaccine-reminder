@@ -1,7 +1,9 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
@@ -93,15 +95,22 @@ func (s vaccineService) Webhook(req model.WebhookPayload) {
 			}
 		}
 	}
+
+	userProfile, err := getUserProfile(req.Events[0].Source.UserID)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	if isDuplicate {
-		err := s.sheetRepository.UpdateUser(req.Events[0].Source.UserID, personName, strings.Split(req.Events[0].Message.Text, " ")[2])
+		err := s.sheetRepository.UpdateUser(userProfile.DisplayName, req.Events[0].Source.UserID, personName, strings.Split(req.Events[0].Message.Text, " ")[2])
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		fmt.Println("update user success")
 	} else {
-		err := s.sheetRepository.InsertUser(req.Events[0].Source.UserID, personName, strings.Split(req.Events[0].Message.Text, " ")[2])
+		err := s.sheetRepository.InsertUser(userProfile.DisplayName, req.Events[0].Source.UserID, personName, strings.Split(req.Events[0].Message.Text, " ")[2])
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -131,4 +140,42 @@ func (s vaccineService) pushTextMessage(userId, text string) error {
 	txt := linebot.NewTextMessage(text)
 	_, err = bot.PushMessage(userId, txt).Do()
 	return err
+}
+
+type UserProfile struct {
+	DisplayName string `json:"displayName"`
+	PictureUrl  string `json:"pictureUrl"`
+	Language    string `json:"language"`
+}
+
+// U25765df18c5beb24e89e0435cab7ef03
+func getUserProfile(userId string) (*UserProfile, error) {
+	url := fmt.Sprintf("https://api.line.me/v2/bot/profile/%s", userId)
+	method := "GET"
+
+	client := &http.Client{}
+	req, err := http.NewRequest(method, url, nil)
+
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "Bearer juxBi5xsAE9T9+CjJf0PJlqUjyCWStF1GP9Zt/gJ+49PhBPrQKIVQvQWRALPZ6dOINzgMoIjcx8+GVI0oP+TY4kaBg7Kh9VjdQmkPcYqnhApbMMZ3QqCP+R1Hi5va+nFqHQ8PxS58YjQ/EvQaJcurAdB04t89/1O/w1cDnyilFU=")
+
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	var response UserProfile
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+	return &response, nil
 }

@@ -11,7 +11,7 @@ import (
 	"vaccine-reminder/model"
 )
 
-var baseUrl = "https://script.google.com/macros/s/AKfycbzMY3AEAIS4iM4xKxEi4j0w1f2pr-ZJZZwTOy-i3RSOfkzW33VMFK4Niv-TJAEt4sY_/exec"
+var baseUrl = "https://script.google.com/macros/s/AKfycbxUVrZEs_XnMSCRWaBnhWSfoIUoWgA-nlt4WXHzaCvgJTwzJUCF1oN_M9cH_X256glw/exec"
 var method string = "GET"
 
 type sheetRepository struct {
@@ -20,8 +20,8 @@ type sheetRepository struct {
 type SheetRepository interface {
 	GetAllFiles() ([]*model.Files, error)
 	GetAllUserLog() ([]*model.UserLog, error)
-	UpdateUser(userId, personName, birth string) error
-	InsertUser(userId, personName, birth string) error
+	UpdateUser(userName, userId, personName, birth string) error
+	InsertUser(userName, userId, personName, birth string) error
 	AddUserNotification(userId, personName, notification string) error
 }
 
@@ -98,9 +98,9 @@ func (r sheetRepository) GetAllFiles() ([]*model.Files, error) {
 	return response, nil
 }
 
-func (r sheetRepository) UpdateUser(userId, personName, birth string) error {
+func (r sheetRepository) UpdateUser(userName, userId, personName, birth string) error {
 	client := &http.Client{}
-	req, err := http.NewRequest(method, generateUrl("updateUser", fmt.Sprintf("&userId=%s&personName=%s&birth='%s", url.QueryEscape(userId), url.QueryEscape(personName), url.QueryEscape(birth))), nil)
+	req, err := http.NewRequest(method, generateUrl("updateUser", fmt.Sprintf("&userName=%s&userId=%s&personName=%s&birth='%s", url.QueryEscape(userName), url.QueryEscape(userId), url.QueryEscape(personName), url.QueryEscape(birth))), nil)
 	if err != nil {
 		return err
 	}
@@ -126,9 +126,9 @@ func (r sheetRepository) AddUserNotification(userId, personName, notification st
 	return nil
 }
 
-func (r sheetRepository) InsertUser(userId, personName, birth string) error {
+func (r sheetRepository) InsertUser(userName, userId, personName, birth string) error {
 	client := &http.Client{}
-	req, err := http.NewRequest(method, generateUrl("insertUser", fmt.Sprintf("&userId=%s&personName=%s&birth='%s", url.QueryEscape(userId), url.QueryEscape(personName), url.QueryEscape(birth))), nil)
+	req, err := http.NewRequest(method, generateUrl("insertUser", fmt.Sprintf("&userName=%s&userId=%s&personName=%s&birth='%s", url.QueryEscape(userName), url.QueryEscape(userId), url.QueryEscape(personName), url.QueryEscape(birth))), nil)
 	if err != nil {
 		return err
 	}
