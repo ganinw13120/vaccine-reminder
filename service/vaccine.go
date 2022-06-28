@@ -71,6 +71,16 @@ func (s vaccineService) CronJob() {
 	fmt.Println("Scheule complete")
 }
 
+func getBirth(txt []string) (bool, string) {
+	for _, v := range txt {
+		_, err := time.Parse("02/01/2006", v)
+		if err != nil {
+			return true, v
+		}
+	}
+	return false, ""
+}
+
 func (s vaccineService) Webhook(req model.WebhookPayload) {
 	regex := regexp.MustCompile("(.*)( {1})(.*)( {1})([0-3][0-9]/[0-1][0-9]/[0-9]{4})")
 	if !regex.Match([]byte(req.Events[0].Message.Text)) {
@@ -79,11 +89,16 @@ func (s vaccineService) Webhook(req model.WebhookPayload) {
 	} else {
 		fmt.Printf("Regex match %s from %s\n", req.Events[0].Message.Text, req.Events[0].Source.UserID)
 	}
-	personNameSlice := strings.Split(req.Events[0].Message.Text, " ")[:2]
-	personName := fmt.Sprintf("%s %s", personNameSlice[0], personNameSlice[1])
+	msg := strings.Split(req.Events[0].Message.Text, " ")
+	personName := fmt.Sprintf("%s %s", msg[0], msg[1])
 	logs, err := s.sheetRepository.GetAllUserLog()
 	if err != nil {
 		fmt.Println(err)
+		return
+	}
+	isBirth, birthDate := getBirth(msg)
+	if !isBirth {
+		fmt.Println("No birth found")
 		return
 	}
 	isDuplicate := false
@@ -103,14 +118,14 @@ func (s vaccineService) Webhook(req model.WebhookPayload) {
 	}
 
 	if isDuplicate {
-		err := s.sheetRepository.UpdateUser(userProfile.DisplayName, req.Events[0].Source.UserID, personName, strings.Split(req.Events[0].Message.Text, " ")[2])
+		err := s.sheetRepository.UpdateUser(userProfile.DisplayName, req.Events[0].Source.UserID, personName, birthDate)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		fmt.Println("update user success")
 	} else {
-		err := s.sheetRepository.InsertUser(userProfile.DisplayName, req.Events[0].Source.UserID, personName, strings.Split(req.Events[0].Message.Text, " ")[2])
+		err := s.sheetRepository.InsertUser(userProfile.DisplayName, req.Events[0].Source.UserID, personName, birthDate)
 		if err != nil {
 			fmt.Println(err)
 			return
