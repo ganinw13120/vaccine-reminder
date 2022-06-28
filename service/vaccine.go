@@ -74,7 +74,7 @@ func (s vaccineService) CronJob() {
 func getBirth(txt []string) (bool, string) {
 	for _, v := range txt {
 		_, err := time.Parse("02/01/2006", v)
-		if err != nil {
+		if err == nil {
 			return true, v
 		}
 	}
